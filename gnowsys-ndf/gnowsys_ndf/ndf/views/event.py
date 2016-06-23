@@ -311,17 +311,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
   View for handling Event and it's sub-types create-edit-view
   """
   auth = None
-  # if ObjectId.is_valid(group_id) is False :
-  #   group_ins = node_collection.one({'_type': "Group","name": group_id})
-  #   auth = node_collection.one({'_type': 'Author', 'name': unicode(request.user.username) })
-  #   if group_ins:
-  #     group_id = str(group_ins._id)
-  #   else :
-  #     auth = node_collection.one({'_type': 'Author', 'name': unicode(request.user.username) })
-  #     if auth :
-  #       group_id = str(auth._id)
-  # else :
-  #   pass
+
   try:
         group_id = ObjectId(group_id)
   except:
@@ -341,16 +331,6 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
   property_order_list = []
 
   template_prefix = "mis"
-
-  '''if request.user:
-    if auth is None:
-      auth = node_collection.one({'_type': 'Author', 'name': unicode(request.user.username)})
-    agency_type = auth.agency_type
-    Event_Types = node_collection.one({'_type': "GSystemType", 'name': agency_type}, {'collection_set': 1})
-    if Event_Types:
-      for eachset in Event_Types.collection_set:
-        app_collection_set.append(node_collection.one({"_id": eachset}, {'_id': 1, 'name': 1, 'type_of': 1}))      
-  '''
 
   group_inverse_rel_id = [] 
   Group_type=node_collection.one({'_id':ObjectId(group_id)})
