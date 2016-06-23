@@ -313,13 +313,12 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
   auth = None
 
   try:
-        group_id = ObjectId(group_id)
+        group_id = ObjectId(group_id) #group_id is a valide ObjectId
   except:
-        group_name, group_id = get_group_name_id(group_id)
+        group_name, group_id = get_group_name_id(group_id) #instead of group_id the name of the object is passed via URL to the function
   
   app_set = ""
-  app_collection_set = []
-  title = ""
+  title = ""    #Stores the name of the type of event such as Meeting
   session_of=""
   module=""
   Add=""
@@ -333,7 +332,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
   template_prefix = "mis"
 
   group_inverse_rel_id = [] 
-  Group_type=node_collection.one({'_id':ObjectId(group_id)})
+  Group_type=node_collection.one({'_id':ObjectId(group_id)}) #instance of the group object in which the event is created
   for i in Group_type.relation_set:
        if unicode("group_of") in i.keys():
           group_inverse_rel_id = i['group_of']
@@ -346,14 +345,12 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
       else:
            Eventtype='Eventtype'
   Glisttype=node_collection.find({"_type": "GSystemType", "name":"GList"})
-  Event_Types = node_collection.one({"member_of":ObjectId(Glisttype[0]["_id"]),"name":Eventtype},{'collection_set': 1})
-  app_collection_set=[]
+  Event_Types = node_collection.one({"member_of":ObjectId(Glisttype[0]["_id"]),"name":Eventtype},{'collection_set': 1}) #Stores the object ids of all the types of events e.g. Meeting, Inauguration, ...
+  app_collection_set=[] #stores the id, name and type_of for all event types (Meeting, Inauguration, etc.) as a list
   if Event_Types:
     for eachset in Event_Types.collection_set:
           app_collection_set.append(node_collection.one({"_id": eachset}, {'_id': 1, 'name': 1, 'type_of': 1}))      
 
-  # for eachset in app.collection_set:
-  #   app_collection_set.append(node_collection.one({"_id":eachset}, {'_id': 1, 'name': 1, 'type_of': 1}))
   iteration=request.POST.get("iteration","")
   if iteration == "":
         iteration=1
@@ -361,14 +358,14 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
         
   for i in range(int(iteration)):
    if app_set_id:
-     event_gst = node_collection.one({'_type': "GSystemType", '_id': ObjectId(app_set_id)}, {'name': 1, 'type_of': 1})
+     event_gst = node_collection.one({'_type': "GSystemType", '_id': ObjectId(app_set_id)}, {'name': 1, 'type_of': 1}) #GSystemType Object for the event corresponding to app_set_id
      title = event_gst.name
-     event_gs = node_collection.collection.GSystem()
-     event_gs.member_of.append(event_gst._id)
+     event_gs = node_collection.collection.GSystem() #create a new GSystem Object for the Event
+     event_gs.member_of.append(event_gst._id) #event_gs is a member_of event_gst
 
-   if app_set_instance_id:
+   if app_set_instance_id: #app_set_instance_id is the objectid of the event object which is already created
      event_gs = node_collection.one({'_type': "GSystem", '_id': ObjectId(app_set_instance_id)})
-   property_order_list = get_property_order_with_value(event_gs)#.property_order
+   property_order_list = get_property_order_with_value(event_gs) #.property_order #stores the properties defining a particular event in a list
    
    if request.method == "POST":
     # [A] Save event-node's base-field(s)
