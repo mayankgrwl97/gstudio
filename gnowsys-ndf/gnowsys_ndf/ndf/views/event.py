@@ -642,5 +642,3 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
                               context_variables,
                               context_instance = RequestContext(request)
                             )
-  
-  
