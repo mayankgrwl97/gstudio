@@ -326,17 +326,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
         group_id = ObjectId(group_id)
   except:
         group_name, group_id = get_group_name_id(group_id)
-  ''' 
-  app = None
-  if app_id is None:
-    app = node_collection.one({'_type': "GSystemType", 'name': app_name})
-    if app:
-      app_id = str(app._id)
-  else:
-    app = node_collection.one({'_id': ObjectId(app_id)})
-
-  app_name = app.name 
-  '''
+  
   app_set = ""
   app_collection_set = []
   title = ""
