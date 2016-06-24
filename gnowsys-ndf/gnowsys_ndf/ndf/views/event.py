@@ -313,12 +313,12 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
   auth = None
 
   try:
-        group_id = ObjectId(group_id) #group_id is a valide ObjectId
+        group_id = ObjectId(group_id) #group_id is a valid ObjectId
   except:
         group_name, group_id = get_group_name_id(group_id) #instead of group_id the name of the object is passed via URL to the function
   
   app_set = ""
-  title = ""    #Stores the name of the type of event such as Meeting
+  title = ""    #Stores the name of the type of event such as Meeting, Inauguration, etc.
   session_of=""
   module=""
   Add=""
@@ -354,18 +354,17 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
   iteration=request.POST.get("iteration","")
   if iteration == "":
         iteration=1
-  
         
   for i in range(int(iteration)):
    if app_set_id:
-     event_gst = node_collection.one({'_type': "GSystemType", '_id': ObjectId(app_set_id)}, {'name': 1, 'type_of': 1}) #GSystemType Object for the event corresponding to app_set_id
+     event_gst = node_collection.one({'_type': "GSystemType", '_id': ObjectId(app_set_id)}, {'name': 1, 'type_of': 1}) #GSystemType Object for the event corresponding to app_set_id e.g. Meeting
      title = event_gst.name
      event_gs = node_collection.collection.GSystem() #create a new GSystem Object for the Event
      event_gs.member_of.append(event_gst._id) #event_gs is a member_of event_gst
 
    if app_set_instance_id: #app_set_instance_id is the objectid of the event object which is already created
      event_gs = node_collection.one({'_type': "GSystem", '_id': ObjectId(app_set_instance_id)})
-   property_order_list = get_property_order_with_value(event_gs) #.property_order #stores the properties defining a particular event in a list
+   property_order_list = get_property_order_with_value(event_gs) #.property_order #stores the properties defining a particular event in a list e.g. name, start_time, attendees, etc..
    
    if request.method == "POST":
     # [A] Save event-node's base-field(s)
@@ -384,10 +383,14 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
             field_value=request.POST.get('start_time'+"_"+str(i),'')  
         else:
             field_value = request.POST.get('start_time','')
+        # print "----------------Field Value-----------"
+        # print field_value
         if event_gst.name == "Exam":
            name = "Exam" + "--" + slugify(request.POST.get("batch_name","")) + "--" + field_value 
         else:
            name= "Class" + "--"+ slugify(request.POST.get("course_name","")) + "--" + field_value
+        # print "-----------------Name------------------"
+        # print name
         event_gs.name=name 
     
     event_gs.save(is_changed=is_changed,groupid=group_id)
@@ -403,7 +406,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
         # * Fetch only Attribute field(s) / Relation field(s)
         
         if field_set.has_key('_id'):
-          field_instance = node_collection.one({'_id': field_set['_id']})
+          field_instance = node_collection.one({'_id': field_set['_id']})#field_instance is an instance for AT or RT e.g. start_time
           field_instance_type = type(field_instance)
 
           if field_instance_type in [AttributeType, RelationType]:
@@ -411,7 +414,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
             if field_instance["name"] == "attendees":
               continue
 
-            field_data_type = field_set['data_type']
+            field_data_type = field_set['data_type'] #data type of AT/RT e.g. datetime.datetime for start_time
 
             # Fetch field's value depending upon AT/RT and Parse fetched-value depending upon that field's data-type
             if field_instance_type == AttributeType:
@@ -451,6 +454,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
               
               if field_value:
                 event_gs_triple_instance = create_gattribute(event_gs._id, node_collection.collection.AttributeType(field_instance), field_value)
+                # print "--------------------------------------------------------------------------------------------------"
                 # print "\n event_gs_triple_instance: ", event_gs_triple_instance._id, " -- ", event_gs_triple_instance.name
 
             else:
@@ -482,6 +486,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
           event_organizer_str = ""
           event_coordinator_str = ""
           event_organized_by = []
+          event_attendees = []
           event_coordinator = []
           event_node = node_collection.one({'_id':ObjectId(event_gs._id)})
           for i in event_node.relation_set:
@@ -518,7 +523,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
           else:
              msg_string = "" 
           notification.create_notice_type(render_label,"Invitation for Event"+ " " + str(event_node.name) + msg_string   + "\n Event will be co-ordinated by " +str (event_coordinator_str) 
-                        + "\n- Please click [[" + event_link + "][here]] to view the details of the event" , "notification")
+                        + "\n- Please click [[" + event_link + "][here]] to view the details of the event" , "notification") ##This is sent via email to all attendees in the group
           notification.send(to_user_list, render_label, {"from_user":"metaStudio"})
 
           return HttpResponseRedirect(reverse('event_app_instance_detail', kwargs={'group_id': group_id,"app_set_id":app_set_id,"app_set_instance_id":event_node._id}))
