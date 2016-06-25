@@ -28,6 +28,8 @@ from gnowsys_ndf.ndf.views.methods import get_property_order_with_value,get_exec
 from gnowsys_ndf.ndf.views.methods import create_gattribute, create_grelation
 from gnowsys_ndf.notification import models as notification
 
+''' -- imports for bigbluebutton wrappers -- '''
+from gnowsys_ndf.ndf.bbb_meeting import *
 
 @get_execution_time
 def event(request, group_id):
@@ -522,6 +524,11 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
              msg_string = "\n Event is organized by " + str ( event_organizer_str ) 
           else:
              msg_string = "" 
+          print "--------------------------"
+          print event_node.name
+          print event_node._id
+          print "--------------------------"
+          bbb_start(event_node.name, event_node._id)
           notification.create_notice_type(render_label,"Invitation for Event"+ " " + str(event_node.name) + msg_string   + "\n Event will be co-ordinated by " +str (event_coordinator_str) 
                         + "\n- Please click [[" + event_link + "][here]] to view the details of the event" , "notification") ##This is sent via email to all attendees in the group
           notification.send(to_user_list, render_label, {"from_user":"metaStudio"})
