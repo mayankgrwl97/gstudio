@@ -479,7 +479,7 @@ def event_create_edit(request, group_id, app_set_id=None, app_set_instance_id=No
                 print "#######"
                 print field_value
                 print "#######"
-                field_value = parse_template_data(ObjectId, field_value, field_instance=field_instance, date_format_string="%d/%m/%Y %H:%M")
+                field_value = parse_template_data(field_data_type, field_value, field_instance=field_instance, date_format_string="%d/%m/%Y %H:%M")
                 field_value_list[i] = field_value
               if field_value_list:
                 event_gs_triple_instance = create_grelation(event_gs._id, node_collection.collection.RelationType(field_instance), field_value_list)
