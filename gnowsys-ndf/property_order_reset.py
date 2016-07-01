@@ -1,4 +1,32 @@
 from gnowsys_ndf.ndf.models import *
+
+el_name = ["name", "is_bigbluebutton", "start_time", "end_time", "event_organised_by", "event_coordinator", "has_attendees", "location", "content_org", "event_status", "tags"]
+el = []
+for i, n in enumerate(el_name):
+  old_n = n
+  n = node_collection.one({'_type': {'$in': ["AttributeType", "RelationType"]}, 'name': n})
+  if n:
+    print "\n ", (i+1), " ", n._id, " -- ", n.name, " -- ", n.property_order
+    el.append(n._id)
+  else:
+    print "\n ", (i+1), " ", old_n
+    el.append(old_n)
+
+epo = [["Basic", el]]
+event = node_collection.one({'_type': "GSystemType", 'name': "Meeting"})
+node_collection.collection.update({'_id': event._id}, {'$set': {'property_order': epo}}, upsert=False, multi=False)
+event.reload()
+
+from gnowsys_ndf.ndf.views.methods import get_property_order_with_value
+event_cur = node_collection.find({'type_of': event._id})
+for n in event_cur:
+  node_collection.collection.update({'_id': n._id}, {'$set': {'property_order': []}}, upsert=False, multi=False)
+  print "\n ", n._id, " -- ", n.name, " -- ", n.property_order
+  print "\n ", n._id, " -- ", n.name, " -- ", get_property_order_with_value(n)
+  n.reload()
+  print "\n ", n._id, " -- ", n.name, " -- ", n.property_order
+
+
 """
 # ================================================================== Tabs for StudentCourseEnrollment
 
@@ -21,7 +49,7 @@ sce_gst.reload()
 
 # ================================================================== Tabs for Event
 
-el_name = ["name", "start_time", "end_time", "event_organised_by", "event_coordinator", "has_attendees", "location", "content_org", "event_status", "tags"]
+el_name = ["name", "dob", "start_time", "end_time", "event_organised_by", "event_coordinator", "has_attendees", "location", "content_org", "event_status", "tags"]
 el = []
 for i, n in enumerate(el_name):
   old_n = n
